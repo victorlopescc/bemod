@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>bemod</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --accent:#7c3aed;
+      --muted:#9aa4b2;
+      --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+      --size-hero: clamp(2rem, 6vw, 4rem);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font-sans);
+      background:linear-gradient(180deg,var(--bg) 0%, #061021 100%);
+      color:whitesmoke;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2rem;
+    }
+
+    .hero{max-width:900px;width:100%;text-align:center;}
+    .kicker{color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-size:0.9rem;margin-bottom:0.5rem;}
+    h1{font-size:var(--size-hero);font-family:var(--mono);margin:0;white-space:pre;}
+    .typed{color:transparent;background:linear-gradient(90deg,#fff,#d1d5db);-webkit-background-clip:text;background-clip:text;}
+    .cursor{display:inline-block;width:0.15em;height:1em;background:var(--accent);margin-left:0.15em;border-radius:2px;animation:blink 1s step-end infinite;vertical-align:bottom;}
+    @keyframes blink{50%{opacity:0}}
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <div class="kicker">just</div>
+    <h1><span class="typed" id="typed"></span><span class="cursor" id="cursor"></span></h1>
+    <p style="color:var(--muted)">writing your dream.</p>
+  </main>
+
+  <script>
+    const config = {
+      phrase: 'be modular',
+      typeSpeedMin: 60,
+      typeSpeedMax: 120,
+      deleteSpeedMin: 50,
+      deleteSpeedMax: 100,
+      pauseAfterType: 1000,
+      pauseAfterDelete: 500
+    };
+
+    const el = document.getElementById('typed');
+    const cursor = document.getElementById('cursor');
+
+    function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+    function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+    async function typeText(text){
+      el.textContent='';
+      for(const c of text){
+        el.textContent+=c;
+        await wait(rand(config.typeSpeedMin, config.typeSpeedMax));
+      }
+    }
+
+    async function deleteAndRewrite(){
+      // delete 'modular'
+      let txt = el.textContent;
+      const deleteCount = txt.length - 2; // keep 'be'
+      for(let i=0;i<deleteCount;i++){
+        txt = txt.slice(0,-1);
+        el.textContent = txt;
+        await wait(rand(config.deleteSpeedMin, config.deleteSpeedMax));
+      }
+
+      await wait(300);
+
+      // rewrite 'bemod'
+      const final = 'mod';
+      for(const c of final){
+        el.textContent += c;
+        await wait(rand(config.typeSpeedMin, config.typeSpeedMax));
+      }
+
+      // fade out cursor
+      cursor.style.transition = 'opacity 0.2s ease';
+      cursor.style.opacity = '0';
+      await wait(400);
+      cursor.remove();
+    }
+
+    async function runSequence(){
+      await typeText(config.phrase);
+      await wait(config.pauseAfterType);
+      await deleteAndRewrite();
+    }
+
+    window.addEventListener('load',()=>runSequence());
+  </script>
+</body>
+</html>
